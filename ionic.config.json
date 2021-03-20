@@ -1,0 +1,8 @@
+{
+  "name": "AzureHack21_MamaTech",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue",
+  "id": "6454c677"
+}
