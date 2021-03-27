@@ -2,6 +2,7 @@ import { ref, onMounted, watch } from 'vue';
 import { Plugins, CameraResultType, CameraSource, CameraPhoto, Capacitor, FilesystemDirectory } from "@capacitor/core";
 import { isPlatform } from '@ionic/vue';
 
+
 export function usePhotoGallery() {
     const { Camera, Filesystem, Storage } = Plugins;
     const photos = ref<Photo[]>([]);
@@ -82,7 +83,7 @@ export function usePhotoGallery() {
         const fileName = new Date().getTime() + '.jpeg';
         const savedFileImage = await savePicture(cameraPhoto, fileName);
         
-        photos.value = [savedFileImage, ...photos.value];
+        photos.value = [savedFileImage];
     };
 
     const deletePhoto = async (photo: Photo) => {
