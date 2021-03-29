@@ -26,6 +26,7 @@ defineCustomElements(window);
 /* Theme variables */
 import './theme/variables.css';
 
+
 const app = createApp(App)
   .use(IonicVue)
   .use(router);

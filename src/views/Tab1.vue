@@ -65,10 +65,8 @@ import {
   IonCol,
 } from "@ionic/vue";
 import { usePhotoGallery, Photo } from "@/composables/usePhotoGallery";
+import dataURLtoBlob from "@/composables/converttoBlob";
 import axios from "axios";
-import toFile from "data-uri-to-file";
-
-//import axios from "axios";
 export default {
   name: "Tab1",
   methods: {
@@ -76,33 +74,24 @@ export default {
         Submits the file to the server
       */
       submitFile(photo: Photo){
-        const dataUri = photo.webviewPath;
-
-        toFile(dataUri).then(file => {
-            console.log(file.mimeType, file.data, file.extension);
-
-            axios.post( 'https://southeastasia.api.cognitive.microsoft.com/customvision/v3.0/Prediction/539a246e-3812-404a-87a9-30b8c5cdced7/classify/iterations/Iteration1/image',
-              file,
-              {
-                headers: {
-                    'Prediction-key' : '99ec6fab24d447dd9300e8ded9fe04ff',
-                    'Content-Type': 'imageFile.type'
-                }
-              }
-            ).then(function(){
-              console.log('SUCCESS!!');
-            })
-            .catch(function(){
-              console.log('FAILURE!!');
-            });
-        });
-        /*
-                Initialize the form data
-            *
-
-        /*
-          Make the request to the POST /single-file URL
-        */
+        console.log(photo.filepath);
+        console.log(photo.webviewPath);
+        const fileBlob = dataURLtoBlob(photo.webviewPath);
+        console.log(fileBlob);
+        
+        const config = {
+          headers : {
+            'Prediction-key':'99ec6fab24d447dd9300e8ded9fe04ff',
+            'Content-Type' : 'application/octet-stream'
+          }
+        }
+      
+        axios.post("https://southeastasia.api.cognitive.microsoft.com/customvision/v3.0/Prediction/539a246e-3812-404a-87a9-30b8c5cdced7/classify/iterations/Iteration1/image", fileBlob, config).then(response => {
+          console.log('response', response)
+          console.log('response data : ', response.data.predictions)
+        }).catch(error => {
+          console.log('error', error)
+        })
       }
     },
   components: {
