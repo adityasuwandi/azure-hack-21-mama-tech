@@ -9,7 +9,7 @@
           
         <ion-tab-button tab="tab2" href="/tabs/tab2">
           <ion-icon :icon="ellipse" />
-          <ion-label>Profile</ion-label>
+          <ion-label>Result</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>

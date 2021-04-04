@@ -22,6 +22,7 @@
             :key="photo"
             v-for="photo in photos"
           >
+          
             <ion-img
               :src="photo.webviewPath"
               @click="showActionSheet(photo)"
@@ -48,6 +49,7 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, ref } from 'vue';
 import { camera, trash, close } from "ionicons/icons";
 import {
   actionSheetController,
@@ -55,6 +57,7 @@ import {
   IonHeader,
   IonFab,
   IonFabButton,
+  modalController,
   IonIcon,
   IonToolbar,
   IonTitle,
@@ -66,34 +69,14 @@ import {
 } from "@ionic/vue";
 import { usePhotoGallery, Photo } from "@/composables/usePhotoGallery";
 import dataURLtoBlob from "@/composables/converttoBlob";
+import parsePrediction from "@/composables/parsePrediction"
 import axios from "axios";
+import { useStore, Todo, MUTATIONS, PhotoData} from '@/store';
+import Modal from '../components/Modal.vue';
+
+
 export default {
   name: "Tab1",
-  methods: {
-      /*
-        Submits the file to the server
-      */
-      submitFile(photo: Photo){
-        console.log(photo.filepath);
-        console.log(photo.webviewPath);
-        const fileBlob = dataURLtoBlob(photo.webviewPath);
-        console.log(fileBlob);
-        
-        const config = {
-          headers : {
-            'Prediction-key':'99ec6fab24d447dd9300e8ded9fe04ff',
-            'Content-Type' : 'application/octet-stream'
-          }
-        }
-      
-        axios.post("https://southeastasia.api.cognitive.microsoft.com/customvision/v3.0/Prediction/539a246e-3812-404a-87a9-30b8c5cdced7/classify/iterations/Iteration1/image", fileBlob, config).then(response => {
-          console.log('response', response)
-          console.log('response data : ', response.data.predictions)
-        }).catch(error => {
-          console.log('error', error)
-        })
-      }
-    },
   components: {
     IonHeader,
     IonFab,
@@ -110,6 +93,41 @@ export default {
   },
   setup() {
     const { photos, takePhoto, deletePhoto } = usePhotoGallery();
+    const listEl = ref();
+    const store = useStore();
+    const openModal = async (todo: Todo | null = null) => {
+      const modal = await modalController.create({
+        component: Modal,
+        componentProps: { todo: { ...todo } },
+      });
+      return await modal.present();
+    };
+    const submitFile = (photo: Photo) =>{
+        console.log(photo.filepath);
+        console.log(photo.webviewPath);
+        const fileBlob = dataURLtoBlob(photo.webviewPath);
+        console.log(fileBlob);
+        
+        const config = {
+          headers : {
+            'Prediction-key':'99ec6fab24d447dd9300e8ded9fe04ff',
+            'Content-Type' : 'application/octet-stream'
+          }
+        }
+      
+        axios.post("https://southeastasia.api.cognitive.microsoft.com/customvision/v3.0/Prediction/539a246e-3812-404a-87a9-30b8c5cdced7/classify/iterations/Iteration1/image", fileBlob, config).then(response => {
+          console.log('response', response)
+          console.log('response data : ', response.data.predictions)
+          const predictionResult = parsePrediction(response.data.predictions)
+          console.log(predictionResult)
+          const newData = ref<PhotoData>({ age: predictionResult.age, race: predictionResult.race, gender : predictionResult.gender, height: Math.floor(Math.random() * (50 - 30 + 1)) + 30 });
+          console.log(store)
+          store.commit(MUTATIONS.ADD_PHOTODATA, newData.value);
+          openModal()
+        }).catch(error => {
+          console.log('error', error)
+        })
+    };
     const showActionSheet = async (photo: Photo) => {
       const actionSheet = await actionSheetController.create({
         header: "Photos",
@@ -135,8 +153,12 @@ export default {
       await actionSheet.present();
     };
     return {
+      store,
       photos,
       takePhoto,
+      defineComponent,
+      openModal,
+      submitFile,
       showActionSheet,
       camera,
       trash,

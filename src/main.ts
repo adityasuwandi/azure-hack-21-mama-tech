@@ -25,12 +25,14 @@ defineCustomElements(window);
 
 /* Theme variables */
 import './theme/variables.css';
+import { store, key } from "./store";
 
 
 const app = createApp(App)
   .use(IonicVue)
-  .use(router);
-  
+  .use(router)
+  .use(store, key);
+
 router.isReady().then(() => {
   app.mount('#app');
 });
