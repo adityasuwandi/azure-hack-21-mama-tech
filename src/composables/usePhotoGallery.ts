@@ -61,7 +61,7 @@ export function usePhotoGallery() {
           // Details: https://ionicframework.com/docs/building/webview#file-protocol
           return {
             filepath: savedFile.uri,
-            webviewPath: Capacitor.convertFileSrc(savedFile.uri),
+            webviewPath: base64Data,
           };
         }
         else {
@@ -69,7 +69,7 @@ export function usePhotoGallery() {
           // already loaded into memory
           return {
             filepath: fileName,
-            webviewPath: photo.webPath
+            webviewPath: base64Data
           };
         }
       };

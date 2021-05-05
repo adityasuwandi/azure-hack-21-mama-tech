@@ -3,7 +3,7 @@ import { createStore, useStore as baseUseStore, Store, MutationTree, ActionTree,
 
 // interfaces for our State and todos
 export type Todo = { id: number; title: string; note?: string };
-export type PhotoData = { age: string; race: string; gender: string; height: number };
+export type PhotoData = { age: string; race: string; gender: string; height: number; weight: number; zscore: number };
 export type State = { todos: Todo[]; data: PhotoData };
 
 export const key: InjectionKey<Store<State>> = Symbol();
@@ -13,7 +13,7 @@ const state: State = {
     { title: 'Learn TypeScript', note: 'https://www.typescriptlang.org', id: 1, },
     { title: 'Learn Vuex', note: 'https://next.vuex.vuejs.org', id: 2 },
   ],
-  data : {age: '', race: '', gender : '', height: 0}
+  data : {age: '', race: '', gender : '', height: 0, weight: 0, zscore: 0}
 };
 
 /*

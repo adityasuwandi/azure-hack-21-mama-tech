@@ -16,6 +16,11 @@
     <ion-content :fullscreen="true">
       <ion-grid>
         <ion-row>
+           <ion-col>
+             <p style="text-align: center">Place the kids 1 meter away when taking the picture</p>
+           </ion-col>
+        </ion-row>
+        <ion-row>
           <ion-col
             style="align-content: center"
             size="12"
@@ -102,7 +107,7 @@ export default {
       });
       return await modal.present();
     };
-    const submitFile = (photo: Photo) =>{
+    const submitFile = async (photo: Photo) =>{
         console.log(photo.filepath);
         console.log(photo.webviewPath);
         const fileBlob = dataURLtoBlob(photo.webviewPath);
@@ -120,7 +125,7 @@ export default {
           console.log('response data : ', response.data.predictions)
           const predictionResult = parsePrediction(response.data.predictions)
           console.log(predictionResult)
-          const newData = ref<PhotoData>({ age: predictionResult.age, race: predictionResult.race, gender : predictionResult.gender, height: Math.floor(Math.random() * (50 - 30 + 1)) + 30 });
+          const newData = ref<PhotoData>({ age: predictionResult.age, race: predictionResult.race, gender : predictionResult.gender, height: Math.floor(Math.random() * (50 - 30 + 1)) + 30, weight: 0, zscore: 0 });
           console.log(store)
           store.commit(MUTATIONS.ADD_PHOTODATA, newData.value);
           openModal()
@@ -129,6 +134,8 @@ export default {
         })
     };
     const showActionSheet = async (photo: Photo) => {
+      console.log(photo.filepath);
+      console.log(photo.webviewPath);
       const actionSheet = await actionSheetController.create({
         header: "Photos",
         buttons: [
@@ -137,6 +144,8 @@ export default {
             role: "destructive",
             icon: trash,
             handler: () => {
+              console.log(photo.filepath);
+              console.log(photo.webviewPath);
               deletePhoto(photo);
             },
           },

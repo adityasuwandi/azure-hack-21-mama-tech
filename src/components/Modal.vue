@@ -33,14 +33,16 @@
       <ion-item>
         <ion-label position="stacked">Weight (in kg)</ion-label>
         <ion-input
-          placeholder= ""
+          v-model="localData.weight"
+          placeholder= localData.gender
         ></ion-input>
       </ion-item>
     </ion-list>
-       <ion-button @click="save()"  href="/tabs/tab2" expand="block">Submit</ion-button>
+       <ion-button @click="submitButton()" expand="block">Submit</ion-button>
   </ion-content>
 </template>
 <script lang="ts">
+import axios from "axios";
 import {
   IonContent,
   IonHeader,
@@ -55,6 +57,7 @@ import {
   modalController,
 } from '@ionic/vue';
 import { defineComponent, PropType, onMounted, ref } from 'vue';
+import ModalResult from './ModalResult.vue';
 import { useStore, Todo, MUTATIONS, PhotoData } from '@/store';
 export default defineComponent({
   name: 'TodoModal',
@@ -77,24 +80,46 @@ export default defineComponent({
     },
   },
   setup(props) {
+    
     const store = useStore();
     const isEdit = ref(false);
     const localData = ref<PhotoData>(store.state.data);
+    const body = JSON.stringify({"gender":localData.value.gender.toLowerCase(),"age":localData.value.age.split(" ")[0] ,"height":localData.value.height})
     onMounted(() => {
-      const { data } = props;
-      localData.value = data;
       isEdit.value = true;
     });
     const close = () => modalController.dismiss();
     const save = () => {
-      if (isEdit.value) {
-        store.commit(MUTATIONS.EDIT_TODO, localData.value);
-      } else {
-        store.commit(MUTATIONS.ADD_TODO, localData.value);
+      const config = {
+          headers: { 
+            'Content-Type': 'application/json'
+          },
       }
-      close();
+      axios.post("https://mamatechs.azurewebsites.net/test", body, config).then(response => {
+          console.log('response', response)
+          console.log('response data : ', response.data)
+          localData.value.zscore = response.data
+        }).catch(error => {
+          console.log('error', error)
+        })
+      console.log(localData.value)
+      store.commit(MUTATIONS.ADD_PHOTODATA, localData.value);
     };
-    return { close, save, localData };
+    const openModal = async (todo: Todo | null = null) => {
+      const modal = await modalController.create({
+        component: ModalResult,
+        componentProps: { todo: { ...todo } },
+      });
+      return await modal.present();
+    };
+    const submitButton = async () =>{
+      save()
+      openModal()
+    }
+
+    
+    
+    return { close, save, localData , submitButton};
   },
 });
 </script>
